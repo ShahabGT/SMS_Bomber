@@ -56,4 +56,8 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.10'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 
+    //access excel files
+    implementation 'org.apache.poi:poi:5.2.3'
+
+
 }
