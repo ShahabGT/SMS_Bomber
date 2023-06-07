@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SMS Bomber</string>
+
+    <string name="read_file_error">Error Reading Excel File…</string>
 </resources>
