@@ -1,6 +1,8 @@
 package ir.shahabazimi.smsbomber
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.telephony.SmsManager
 import android.view.View
@@ -8,6 +10,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.transition.TransitionManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ir.shahabazimi.smsbomber.databinding.ActivityMainBinding
 import kotlinx.coroutines.delay
@@ -17,7 +20,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory
 import java.io.FileInputStream
 
-
+@SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -29,16 +32,20 @@ class MainActivity : AppCompatActivity() {
             handleSMSPermission(it)
         }
 
+    private val smsManager =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            getSystemService(SmsManager::class.java)
+        else
+            SmsManager.getDefault()
+
     private fun isSMSPermissionGranted() =
-        arrayOf(Manifest.permission.SEND_SMS).isAllPermissionGranted(this)
+        arrayOf(Manifest.permission.SEND_SMS).isPermissionGranted(this)
 
     private fun handleSMSPermission(isAllowed: Boolean) {
-        if (isAllowed)
-            lifecycleScope.launch {
-                sendSms()
-            }
-        else
-            showToast(this, getString(R.string.sms_permission_error))
+        if (isAllowed) lifecycleScope.launch {
+            sendSms()
+        }
+        else showToast(this, getString(R.string.sms_permission_error))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,8 +67,7 @@ class MainActivity : AppCompatActivity() {
                         gatheredData.clear()
                         gatheredData.addAll(readExcelFile(file))
                         handleDesign()
-                    } else
-                        showToast(this, getString(R.string.read_file_error))
+                    } else showToast(this, getString(R.string.read_file_error))
                 } else {
                     showToast(this, getString(R.string.read_file_error))
                 }
@@ -80,14 +86,12 @@ class MainActivity : AppCompatActivity() {
                 showToast(this@MainActivity, getString(R.string.empty_file_error))
             } else {
                 val contents = gatheredData.map { it.first + ": " + it.second }.toTypedArray()
-                MaterialAlertDialogBuilder(this@MainActivity)
-                    .setTitle("List of Entities")
-                    .setItems(contents) { a, b ->
-                        gatheredData.removeAt(b)
+                MaterialAlertDialogBuilder(this@MainActivity).setTitle(getString(R.string.list_entries))
+                    .setIcon(R.drawable.list_icon).setItems(contents) { dialog, position ->
+                        gatheredData.removeAt(position)
                         countText.text = gatheredData.size.toString()
-                        a.dismiss()
-                    }
-                    .show()
+                        dialog.dismiss()
+                    }.show()
             }
         }
 
@@ -102,9 +106,12 @@ class MainActivity : AppCompatActivity() {
             smsPermission.launch(Manifest.permission.SEND_SMS)
         } else {
             with(binding) {
+                animateLayoutChanges()
                 sendCard.visibility = View.GONE
+                countCard.visibility = View.GONE
                 progressCard.visibility = View.VISIBLE
                 progressText.text = "0/${gatheredData.size}"
+                uploadCard.isEnabled = false
             }
             lifecycleScope.launch {
                 sendSms()
@@ -113,15 +120,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun sendSms() {
+        delay(1000)
         gatheredData.forEachIndexed { index, data ->
-            delay(1000)
-            sendSingleSMS(data.first, data.second)
+            val (phoneNumber, message) = data
+            smsManager.sendTextMessage(phoneNumber, null, message, null, null)
             calculateProgress(index + 1)
+            delay(500)
         }
-        delay(500)
-        binding.sendCard.visibility = View.VISIBLE
-        binding.progressCard.visibility = View.GONE
-        binding.progressIndicator.setProgress(0, false)
+        delay(1000)
+        with(binding) {
+            animateLayoutChanges()
+            sendCard.visibility = View.VISIBLE
+            countCard.visibility = View.VISIBLE
+            progressCard.visibility = View.GONE
+            progressIndicator.setProgress(0, false)
+            uploadCard.isEnabled = true
+        }
+
     }
 
     private fun calculateProgress(count: Int) {
@@ -131,9 +146,8 @@ class MainActivity : AppCompatActivity() {
         binding.progressText.text = "$count/$max"
     }
 
-
     private fun openExcelFile() = excelPickerLauncher.launch(
-        arrayOf(EXCEL_MIME)
+        arrayOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     )
 
     private fun readExcelFile(filepath: String): List<Pair<String, String>> {
@@ -147,17 +161,13 @@ class MainActivity : AppCompatActivity() {
         xlWs.forEach { row ->
             val first = row.getCell(firsColumn).stringCellValue
             val second = row.getCell(secondColumn).stringCellValue
-            if (first.isNumber())
-                data.add(Pair(first, second))
+            if (first.isNumber()) data.add(Pair(first, second))
         }
         return data
     }
 
-    private fun sendSingleSMS(phoneNumber: String, message: String) {
-        val smsManager = getSystemService(SmsManager::class.java)
-        smsManager.sendTextMessage(phoneNumber, null, message, null, null)
-    }
-
+    private fun animateLayoutChanges() =
+        TransitionManager.beginDelayedTransition(binding.rootView)
 
     override fun onDestroy() {
         super.onDestroy()

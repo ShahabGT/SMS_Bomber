@@ -4,27 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    android:background="#F2F5FB">
+    android:id="@+id/rootView"
+    android:background="@color/background_main">
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/drawable_top_shape"
         app:layout_constraintBottom_toBottomOf="@id/topGuide"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.textview.MaterialTextView
-        style="@style/MaterialAlertDialog.Material3.Title.Text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|bottom"
-        android:layout_marginTop="12dp"
-        android:text="Start Here"
-        android:textColor="#ffffff"
-        app:layout_constraintBottom_toTopOf="@id/uploadCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -42,7 +29,7 @@
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginHorizontal="32dp"
-        app:cardBackgroundColor="#ffffff"
+        app:cardBackgroundColor="@color/card_color"
         app:layout_constraintBottom_toBottomOf="@id/topGuide"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -67,7 +54,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|bottom"
                 android:layout_marginTop="12dp"
-                android:text="Start Here" />
+                android:text="@string/start_text"
+                android:textColor="@color/text_color" />
 
         </LinearLayout>
 
@@ -98,7 +86,7 @@
                 style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
-                app:cardBackgroundColor="#FFFFFF">
+                app:cardBackgroundColor="@color/card_color">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -125,7 +113,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Total Entry Fount:"
+                        android:text="@string/total_entry"
+                        android:textColor="@color/text_color"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toTopOf="@id/countText"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -139,7 +128,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="0"
+                        android:textColor="@color/text_color"
                         app:layout_constraintBottom_toBottomOf="@id/countIcon"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/countIcon"
@@ -156,7 +145,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_marginTop="12dp"
-                app:cardBackgroundColor="#FFFFFF">
+                app:cardBackgroundColor="@color/card_color">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -183,7 +172,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Send!"
+                        android:text="@string/send"
+                        android:textColor="@color/text_color"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="@id/sendIcon"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -204,7 +194,7 @@
                 android:layout_height="80dp"
                 android:layout_marginTop="12dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/card_color"
                 tools:visibility="visible">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -215,6 +205,8 @@
                         android:id="@+id/progressIndicator"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        app:indicatorColor="@color/progress_indicator"
+                        app:trackColor="@color/progress_track"
                         app:trackCornerRadius="15dp"
                         app:trackThickness="100dp" />
 
@@ -241,7 +233,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="Sending..."
+                        android:text="@string/sending"
+                        android:textColor="@color/text_color"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toTopOf="@id/progressText"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -255,7 +248,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="0/0"
+                        android:textColor="@color/text_color"
                         app:layout_constraintBottom_toBottomOf="@id/progressIcon"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/progressIcon"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_main">#16151B</color>
+    <color name="card_color">#27242E</color>
+    <color name="text_color">#FFFFFF</color>
+    <color name="header_color">#627762</color>
+    <color name="progress_track">#80A157FF</color>
+    <color name="progress_indicator">#BB86FF</color>
+</resources>

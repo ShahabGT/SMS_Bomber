@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">SMS Bomber</string>
-
-    <string name="read_file_error">Error Reading Excel File…</string>
-    <string name="empty_file_error">No Entities Available</string>
-    <string name="sms_permission_error">Please Allow SNS Permission!</string>
+    <string name="read_file_error">Error reading excel file…</string>
+    <string name="empty_file_error">No entries available</string>
+    <string name="list_entries">List of entries</string>
+    <string name="sms_permission_error">Please allow sms permission!</string>
+    <string name="start_text">Browse Files</string>
+    <string name="total_entry">Total Entries Found</string>
+    <string name="send">Start Sending…</string>
+    <string name="sending">Sending…</string>
 </resources>
