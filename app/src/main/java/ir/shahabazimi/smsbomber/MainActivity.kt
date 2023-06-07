@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ir.shahabazimi.smsbomber.databinding.ActivityMainBinding
 import org.apache.poi.hssf.usermodel.HSSFWorkbookFactory
 import org.apache.poi.ss.usermodel.WorkbookFactory
@@ -15,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var excelPickerLauncher: ActivityResultLauncher<Array<String>>
-
+    private val gatheredData: MutableList<Pair<String, String>> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,9 +33,11 @@ class MainActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
                 if (uri != null) {
                     val file = saveFile(this, uri)
-                    if (file != null)
-                        readExcelFile(file)
-                    else
+                    if (file != null) {
+                        gatheredData.clear()
+                        gatheredData.addAll(readExcelFile(file))
+                        handleDesign()
+                    } else
                         showToast(this, getString(R.string.read_file_error))
                 } else {
                     showToast(this, getString(R.string.read_file_error))
@@ -43,7 +46,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() = with(binding) {
-        button.setOnClickListener { openExcelFile() }
+        uploadCard.setOnClickListener { openExcelFile() }
+    }
+
+    private fun handleDesign() = with(binding) {
+        countText.text = gatheredData.size.toString()
+        countCard.setOnClickListener {
+            if (gatheredData.isEmpty()) {
+                showToast(this@MainActivity, getString(R.string.empty_file_error))
+            } else {
+                val contents = gatheredData.map { it.first + ": " + it.second }.toTypedArray()
+                MaterialAlertDialogBuilder(this@MainActivity)
+                    .setTitle("List of Entities")
+                    .setItems(contents) { a, b ->
+                        gatheredData.removeAt(b)
+                        countText.text = gatheredData.size.toString()
+                        a.dismiss()
+                    }
+                    .show()
+            }
+        }
+
     }
 
 
@@ -51,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         arrayOf(EXCEL_MIME)
     )
 
-    private fun readExcelFile(filepath: String) {
+    private fun readExcelFile(filepath: String): List<Pair<String, String>> {
         val inputStream = FileInputStream(filepath)
         val xlWb = WorkbookFactory.create(inputStream)
         val firsColumn = 0
@@ -65,7 +88,7 @@ class MainActivity : AppCompatActivity() {
             if (first.isNumber())
                 data.add(Pair(first, second))
         }
-
+        return data
     }
 
 
