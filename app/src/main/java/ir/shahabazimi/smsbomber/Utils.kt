@@ -1,8 +1,10 @@
 package ir.shahabazimi.smsbomber
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -85,3 +87,13 @@ private fun createFileName(): String {
 
 fun showToast(context: Context, text: String?) =
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+
+fun Array<String>.isAllPermissionGranted(context: Context): Boolean = this.all {
+    if (it.contains("permission")) {
+        ContextCompat.checkSelfPermission(
+            context, it
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        false
+    }
+}

@@ -1,5 +1,6 @@
 package ir.shahabazimi.smsbomber
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +18,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var excelPickerLauncher: ActivityResultLauncher<Array<String>>
     private val gatheredData: MutableList<Pair<String, String>> = mutableListOf()
+
+    private val smsPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            handleSMSPermission(it)
+        }
+
+    private fun isSMSPermissionGranted() =
+        arrayOf(Manifest.permission.SEND_SMS).isAllPermissionGranted(this)
+
+    private fun handleSMSPermission(isAllowed: Boolean) {
+        if (isAllowed)
+            sendSms()
+        else
+            showToast(this, getString(R.string.sms_permission_error))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +83,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        sendCard.setOnClickListener {
+            checkSMSPermission()
+        }
+
+    }
+
+    private fun checkSMSPermission() {
+        if (!isSMSPermissionGranted()) {
+            smsPermission.launch(Manifest.permission.SEND_SMS)
+        } else {
+            sendSms()
+        }
+    }
+
+    private fun sendSms() {
+        showToast(this, "SEND SMS")
     }
 
 
@@ -91,5 +123,10 @@ class MainActivity : AppCompatActivity() {
         return data
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+        smsPermission.unregister()
+    }
 
 }

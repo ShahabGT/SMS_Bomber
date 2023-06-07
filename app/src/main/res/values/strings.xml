@@ -3,4 +3,5 @@
 
     <string name="read_file_error">Error Reading Excel File…</string>
     <string name="empty_file_error">No Entities Available</string>
+    <string name="sms_permission_error">Please Allow SNS Permission!</string>
 </resources>
