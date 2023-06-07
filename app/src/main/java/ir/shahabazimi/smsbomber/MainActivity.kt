@@ -32,11 +32,7 @@ class MainActivity : AppCompatActivity() {
             handleSMSPermission(it)
         }
 
-    private val smsManager =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            getSystemService(SmsManager::class.java)
-        else
-            SmsManager.getDefault()
+    private val smsManager = SmsManager.getDefault()
 
     private fun isSMSPermissionGranted() =
         arrayOf(Manifest.permission.SEND_SMS).isPermissionGranted(this)
