@@ -2,11 +2,16 @@ package ir.shahabazimi.smsbomber
 
 import android.Manifest
 import android.os.Bundle
+import android.telephony.SmsManager
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ir.shahabazimi.smsbomber.databinding.ActivityMainBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.apache.poi.hssf.usermodel.HSSFWorkbookFactory
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory
@@ -29,7 +34,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleSMSPermission(isAllowed: Boolean) {
         if (isAllowed)
-            sendSms()
+            lifecycleScope.launch {
+                sendSms()
+            }
         else
             showToast(this, getString(R.string.sms_permission_error))
     }
@@ -66,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleDesign() = with(binding) {
+        scrollView.visibility = View.VISIBLE
         countText.text = gatheredData.size.toString()
         countCard.setOnClickListener {
             if (gatheredData.isEmpty()) {
@@ -93,12 +101,34 @@ class MainActivity : AppCompatActivity() {
         if (!isSMSPermissionGranted()) {
             smsPermission.launch(Manifest.permission.SEND_SMS)
         } else {
-            sendSms()
+            with(binding) {
+                sendCard.visibility = View.GONE
+                progressCard.visibility = View.VISIBLE
+                progressText.text = "0/${gatheredData.size}"
+            }
+            lifecycleScope.launch {
+                sendSms()
+            }
         }
     }
 
-    private fun sendSms() {
-        showToast(this, "SEND SMS")
+    private suspend fun sendSms() {
+        gatheredData.forEachIndexed { index, data ->
+            delay(1000)
+            sendSingleSMS(data.first, data.second)
+            calculateProgress(index + 1)
+        }
+        delay(500)
+        binding.sendCard.visibility = View.VISIBLE
+        binding.progressCard.visibility = View.GONE
+        binding.progressIndicator.setProgress(0, false)
+    }
+
+    private fun calculateProgress(count: Int) {
+        val max = gatheredData.size
+        val progress = (count * 100) / max
+        binding.progressIndicator.setProgress(progress, true)
+        binding.progressText.text = "$count/$max"
     }
 
 
@@ -121,6 +151,11 @@ class MainActivity : AppCompatActivity() {
                 data.add(Pair(first, second))
         }
         return data
+    }
+
+    private fun sendSingleSMS(phoneNumber: String, message: String) {
+        val smsManager = getSystemService(SmsManager::class.java)
+        smsManager.sendTextMessage(phoneNumber, null, message, null, null)
     }
 
 
