@@ -38,10 +38,12 @@ class MainActivity : AppCompatActivity() {
         arrayOf(Manifest.permission.SEND_SMS).isPermissionGranted(this)
 
     private fun handleSMSPermission(isAllowed: Boolean) {
-        if (isAllowed) lifecycleScope.launch {
-            sendSms()
-        }
-        else showToast(this, getString(R.string.sms_permission_error))
+        if (isAllowed)
+            lifecycleScope.launch {
+                sendSms()
+            }
+        else
+            showToast(this, getString(R.string.sms_permission_error))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         init()
-        initViews()
     }
 
     private fun init() {
@@ -63,15 +64,15 @@ class MainActivity : AppCompatActivity() {
                         gatheredData.clear()
                         gatheredData.addAll(readExcelFile(file))
                         handleDesign()
-                    } else showToast(this, getString(R.string.read_file_error))
+                    } else {
+                        showToast(this, getString(R.string.read_file_error))
+                    }
                 } else {
                     showToast(this, getString(R.string.read_file_error))
                 }
             }
-    }
 
-    private fun initViews() = with(binding) {
-        uploadCard.setOnClickListener { openExcelFile() }
+        binding.uploadCard.setOnClickListener { openExcelFile() }
     }
 
     private fun handleDesign() = with(binding) {
@@ -82,8 +83,10 @@ class MainActivity : AppCompatActivity() {
                 showToast(this@MainActivity, getString(R.string.empty_file_error))
             } else {
                 val contents = gatheredData.map { it.first + ": " + it.second }.toTypedArray()
-                MaterialAlertDialogBuilder(this@MainActivity).setTitle(getString(R.string.list_entries))
-                    .setIcon(R.drawable.list_icon).setItems(contents) { dialog, position ->
+                MaterialAlertDialogBuilder(this@MainActivity)
+                    .setTitle(getString(R.string.list_entries))
+                    .setIcon(R.drawable.list_icon)
+                    .setItems(contents) { dialog, position ->
                         gatheredData.removeAt(position)
                         countText.text = gatheredData.size.toString()
                         dialog.dismiss()
@@ -92,7 +95,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         sendCard.setOnClickListener {
-            checkSMSPermission()
+            if (gatheredData.isEmpty())
+                showToast(this@MainActivity, getString(R.string.empty_file_error))
+            else
+                checkSMSPermission()
         }
 
     }

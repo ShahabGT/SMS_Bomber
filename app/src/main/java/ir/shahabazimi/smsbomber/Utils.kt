@@ -31,7 +31,9 @@ fun saveFile(
         saveFileInCache(
             context, bytes
         )
-    } else null
+    } else {
+        null
+    }
 }
 
 private fun saveFileInCache(
@@ -39,9 +41,7 @@ private fun saveFileInCache(
 ): String {
     val directory = File("${context.cacheDir}/${context.getString(R.string.app_name)}")
     if (!directory.exists()) directory.mkdirs()
-    val imageFile = File(
-        directory, createFileName()
-    )
+    val imageFile = File(directory, createFileName())
     val fOut = FileOutputStream(imageFile)
     return try {
         fOut.write(data)
